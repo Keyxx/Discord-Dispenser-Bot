@@ -4,8 +4,6 @@ import { Client, Collection, Events, GatewayIntentBits } from 'discord.js';
 
 import fs from 'node:fs';
 
-
-
 const client = new Client({
 	intents: [
 		GatewayIntentBits.Guilds,
@@ -34,29 +32,27 @@ for (const file of commandFiles) {
 	}
 }
 
-client.on(Events.InteractionCreate, async interaction => {
-	if (!interaction.isChatInputCommand()) return;
-	const command = interaction.client.commands.get(interaction.commandName);
+const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js'));
 
-	if (!command) {
-		console.error(`No command matching ${interaction.commandName} was found.`);
-		return;
-	}
+for (const file of eventFiles){
 
-	try {
-		await command.execute(interaction);
-	} catch (error) {
-		console.error(error);
-		if (interaction.replied || interaction.deferred) {
-			await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
-		} else {
-			await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
-		}
+	const { event } = await import(`./events/${file}`);
+
+	if (event.once) {
+		client.once(event.name, (...args) => event.execute(...args));
+	}else if (event.on) {
+		client.on(event.name, (...args) => event.execute(...args));
+	}else {
+		console.log("Event handler encountered a problem");
 	}
-});
+}
+
+client.login(process.env.CLIENT_TOKEN).catch((e) => console.log(e));
+
+
 
 // The message event handles all messages
-client.on("messageCreate", m => {
+/*client.on("messageCreate", m => {
 
 	if(m.content === "!help"){
 		m.reply("Hello! here are my commands: \n " +
@@ -148,8 +144,8 @@ client.on("messageCreate", m => {
 			jsonstr = JSON.parse(body);
 			m.mesg(jsonstr.slip.advice);
 		});
-	}*/
-});
+	}
+});*/
 
 // This function is used by &init to handle connection errors
 /*function error(e) {
@@ -157,9 +153,5 @@ client.on("messageCreate", m => {
 	process.exit(0);
 }*/
 
-client.once(Events.ClientReady, readyClient => {
-	console.log(`Ready! Logged in as ${readyClient.user.tag}`);
-});
 
 // Login using the username and password specified above and catch any errors
-client.login(process.env.CLIENT_TOKEN).catch((e) => console.log(e));
