@@ -17,7 +17,7 @@ export default {
           };
           
           try{
-            const json = await fetch("https://api.thecatapi.com/v1/images/search?api_key=YOUR_API_KEY", requestOptions)
+            const json = await fetch("https://api.thecatapi.com/v1/images/search", requestOptions)
             .then(response => response.json());
             await interaction.reply(json[0].url);
             console.log(json[0].url);

@@ -13,7 +13,6 @@ export default {
             method: 'GET',
             headers: headers,
           };
-          
           try{
             const json = await fetch("https://icanhazdadjoke.com/", requestOptions)
             .then(response => response.json());

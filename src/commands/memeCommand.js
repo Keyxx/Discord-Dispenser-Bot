@@ -2,25 +2,24 @@ import { SlashCommandBuilder } from 'discord.js';
 
 export default {
 	data: new SlashCommandBuilder()
-		.setName('advice')
-		.setDescription('Gives you life advice'),
+		.setName('meme')
+		.setDescription('Posts a random meme from reddit'),
 	async execute(interaction) {
+
         const headers = new Headers({
-            "Content-Type": "application/json",
+            "Accept": "application/json"
           });
-          
-          var requestOptions = {
+        var requestOptions = {
             method: 'GET',
             headers: headers,
-            redirect: 'follow'
           };
           
           try{
-            const json = await fetch("http://api.adviceslip.com/advice", requestOptions)
+            const json = await fetch("https://meme-api.com/gimme", requestOptions)
             .then(response => response.json());
-            await interaction.reply(json.slip.advice);
+            await interaction.reply(json.url);
           } catch (error){
             console.log('error', error)
-          }	
-	},
+          }
+	}
 };

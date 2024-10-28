@@ -14,7 +14,6 @@ export default {
             method: 'GET',
             headers: headers,
           };
-          
           try{
             const text = await fetch("https://inspirobot.me/api?generate=true", requestOptions)
             .then(response => response.text());
