@@ -1,10 +1,15 @@
 
 import 'dotenv/config';
-import { Client, Collection, Events, GatewayIntentBits } from 'discord.js';
+import { Client, Collection, GatewayIntentBits } from 'discord.js';
 
 import fs from 'node:fs';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+const path = await import("node:path");
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
-//Set Intent bits, this shows what the bot is allowed to do. More info about these bits on discord.js page:
+//Set Intent bits, this shows what the bot is allowed to do on the server. More info about these bits on discord.js page:
 //https://discordjs.guide/popular-topics/intents.html
 
 const client = new Client({
@@ -23,29 +28,33 @@ const client = new Client({
 
 // Set list of all commands in commands folder
 client.commands = new Collection();
-const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
+const commandsPath = path.join(__dirname, 'commands');
+const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 for (const file of commandFiles) {
-	const command = (await import(`./commands/${file}`)).default;
-	// Set a new item in the Collection with the key as the command name and the value as the exported module
+
+
+	const command = (await import(path.join(commandsPath,file))).default;
+
 	if ('data' in command && 'execute' in command) {
 		client.commands.set(command.data.name, command);
 	} else {
-		console.log(`[WARNING] The command at /commands/${file} is missing a required "data" or "execute" property.`);
+		console.log(`[ERROR] The command at ${comnand} is missing a required "data" or "execute" property.`);
 	}
 }
 
 // Set list of event listeners. E.g when message created or when client connected
-const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js'));
+const eventsPath = path.join(__dirname, 'events');
+const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
 for (const file of eventFiles){
-
-	const { event } = await import(`./events/${file}`);
+	
+	const { event } = await import(path.join(eventsPath,file));
 
 	if (event.once) {
 		client.once(event.name, (...args) => event.execute(...args));
 	}else if (event.on) {
 		client.on(event.name, (...args) => event.execute(...args));
 	}else {
-		console.log("Event handler encountered a problem");
+		console.log(`[ERROR] Event handler encountered a problem with event ${event}`);
 	}
 }
 
