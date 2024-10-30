@@ -22,7 +22,6 @@ export default {
             const json = await fetch("https://api.thedogapi.com/v1/images/search", requestOptions)
             .then(response => response.json());
             await interaction.reply(json[0].url);
-            console.log(json[0].url);
           } catch (error){
             console.log('error', error)
           }
