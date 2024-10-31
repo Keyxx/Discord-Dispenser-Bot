@@ -10,19 +10,16 @@ export const event = {
     name: Events.GuildCreate,
 
     async execute(guild, sourcePath) {
-        console.log("fard");
-
         const path = await import("node:path");
         const __filename = fileURLToPath(import.meta.url);
         const __dirname = dirname(__filename);
 
         const commands = [];
 
-        const commandsPath = path.join(__dirname, 'commands');
-        const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
+        const commandFiles = fs.readdirSync(process.env.COMMANDS_PATH).filter(file => file.endsWith('.js'));
 
         for (const file of commandFiles) {
-            const command = (await import(path.join(commandsPath, file))).default;
+            const command = (await import(path.join(process.env.COMMANDS_PATH, file))).default;
             if ('data' in command && 'execute' in command) {
                 commands.push(command.data.toJSON());
             } else {
