@@ -9,7 +9,7 @@ export const event = {
     on: Client.on,
     name: Events.GuildCreate,
 
-    async execute(guild, sourcePath) {
+    async execute(guild) {
         const path = await import("node:path");
         const __filename = fileURLToPath(import.meta.url);
         const __dirname = dirname(__filename);
